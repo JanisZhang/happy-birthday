@@ -1,177 +1,217 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>生日快乐！</title>
+    <title>LISA'S PARTY ✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* 页面基础样式 */
+        /* =========================================
+           1. 基础设定 (不变)
+           ========================================= */
+        :root {
+            --primary: #ff00ff;   /* 霓虹粉 */
+            --secondary: #00ffff; /* 赛博青 */
+            --yellow: #ffee00;    /* 警告黄 */
+            --dark: #050505;
+        }
+        * { box-sizing: border-box; }
         body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: "Microsoft YaHei", sans-serif;
-            overflow: hidden;
+            margin: 0; padding: 0; background-color: var(--dark); color: #fff; font-family: 'Roboto Mono', monospace; overflow: hidden; height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; perspective: 1000px; touch-action: manipulation;
+        }
+        .bg-noise { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.08; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAA5OTkAAAAAAAAAAAAAAAAAAAAAAAB/2zh8AAAACHRSTlMAMwA5EDszM3W9E9oAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAAwSURBVDjLY2AYBcMCDA4OQBwjI4hOnTpE06ZNo3r6qH40fVQ/mj6qH00f1Y+CQQMAALyLBFzs33+yAAAAAElFTkSuQmCC'); pointer-events: none; z-index: 0; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); z-index: 0; opacity: 0.5; animation: orbFloat 8s infinite ease-in-out; }
+        .orb-1 { width: 350px; height: 350px; background: var(--primary); top: -10%; left: -10%; }
+        .orb-2 { width: 450px; height: 450px; background: var(--secondary); bottom: -10%; right: -10%; animation-delay: -4s; }
+        @keyframes orbFloat { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(40px, 60px); } }
+
+        /* =========================================
+           2. 漂浮弹幕 (不变)
+           ========================================= */
+        #floating-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; overflow: hidden; }
+        .float-text { position: absolute; color: rgba(255,255,255,0.4); font-family: 'Bangers', cursive; font-size: 1.8rem; white-space: nowrap; text-shadow: 2px 2px 0 #000; transition: transform 0.2s; animation: floatAround 10s linear infinite; }
+        .float-text.highlight { color: var(--yellow); opacity: 0.9; font-size: 2.2rem; text-shadow: 3px 3px 0 #ff0055; z-index: 201; }
+        @keyframes floatAround { 0% { transform: translateX(110vw) rotate(0deg); } 100% { transform: translateX(-100vw) rotate(15deg); } }
+
+        /* =========================================
+           3. 主舞台 (微调提示语样式)
+           ========================================= */
+        .stage { z-index: 10; text-align: center; position: relative; transform-style: preserve-3d; transition: opacity 0.5s, transform 0.5s; }
+        .stage.minimized { transform: scale(0.8); opacity: 0; pointer-events: none; }
+        h1 { font-family: 'Press Start 2P', cursive; font-size: 2.5rem; line-height: 1.4; margin: 0; color: #fff; text-transform: uppercase; text-shadow: 4px 4px 0 var(--primary), -4px -4px 0 var(--secondary); animation: glitchText 3s infinite alternate; }
+        .subtitle { font-size: 1.1rem; background: var(--yellow); color: #000; padding: 4px 12px; display: inline-block; transform: rotate(-3deg); margin-top: 10px; font-weight: bold; box-shadow: 4px 4px 0 #fff; }
+        .cake-cage { margin: 30px auto; width: 180px; height: 180px; position: relative; cursor: pointer; transition: transform 0.1s; }
+        .cake-cage:active { transform: scale(0.9); }
+        .cake-emoji { font-size: 100px; filter: drop-shadow(0 0 25px rgba(255,0,255,0.7)); animation: bounce 0.6s infinite alternate; }
+        .power-bar-container { width: 240px; height: 24px; border: 3px solid #fff; margin: 20px auto; border-radius: 12px; overflow: hidden; background: #222; position: relative; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        .power-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary)); transition: width 0.1s linear; }
+        /* 提示语样式调整 */
+        .tap-hint { margin-top: 10px; animation: blink 0.5s infinite; color: var(--secondary); font-family: 'Press Start 2P'; font-size: 0.65rem; line-height: 1.5; letter-spacing: 1px; text-shadow: 0 0 5px var(--secondary); }
+
+        /* =========================================
+           4. 结果页与卡片 (核心重构区!!!)
+           ========================================= */
+        .result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); /* 背景稍微深一点，突出卡片 */
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100; opacity: 0; pointer-events: none;
+            transition: opacity 0.6s ease-out; perspective: 1200px;
+        }
+        .result-overlay.active { opacity: 1; pointer-events: auto; }
+        .card-container-3d {
+            width: 320px; height: 210px; position: relative; transform-style: preserve-3d; opacity: 0; transform: scale(0.5) translateY(50px);
+        }
+        .result-overlay.active .card-container-3d {
+            animation: popUpCard 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.3s;
         }
 
-        /* 祝福文字样式 */
-        .message {
-            text-align: center;
-            z-index: 10;
-            margin-bottom: 20px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 1s ease;
+        /* --- 卡片样式完全重构：赛博霓虹核心 --- */
+        .the-card {
+            width: 100%; height: 100%;
+            border-radius: 20px;
+            /* 极具科技感的深色背景 + 微小网格纹理 */
+            background: 
+                linear-gradient(135deg, rgba(20,20,20,0.95), rgba(0,0,0,0.98)),
+                url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAADdJREFUGBljYGBgVgViGRAzQIk/e/bsPwgDYoY7d+78B2Gwwp07d/6DMMT///+DMCF5JgZWAADNmh28kCjvlAAAAABJRU5ErkJggg==');
+            background-size: cover, 10px 10px;
+            
+            /* 炫酷的霓虹渐变边框 */
+            border: 3px solid transparent;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1)), linear-gradient(45deg, var(--primary), var(--secondary), var(--yellow), var(--primary));
+            
+            /* 强烈的外发光效果，让卡片“浮”起来 */
+            box-shadow: 
+                0 0 30px rgba(255, 0, 255, 0.5),
+                0 0 60px rgba(0, 255, 255, 0.3),
+                inset 0 0 30px rgba(0,0,0,0.8);
+
+            padding: 22px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+            color: #fff; /* 文字回归白色/亮色 */
         }
+
+        /* 更亮的赛博流光 */
+        .the-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 200%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), rgba(0,255,255,0.5), transparent);
+            transform: skewX(-20deg) translateX(-150%);
+            animation: shimmer 2.5s infinite; pointer-events: none;
+        }
+
+        /* --- 卡片内部文字高亮 --- */
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { color: var(--yellow); font-family: 'Press Start 2P'; font-size: 0.7rem; line-height: 1.5; text-shadow: 0 0 8px var(--yellow); }
+        .wifi-icon { font-size: 1.5rem; transform: rotate(90deg); color: rgba(255,255,255,0.8); text-shadow: 0 0 10px #fff; }
+
+        .card-mid { text-align: center; margin-top: 5px; }
+        /* 无限符号：超级发光 */
+        .big-infinity {
+            font-size: 3.8rem; color: #fff;
+            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--secondary);
+            font-family: 'Bangers'; line-height: 1;
+        }
+        .mid-desc { font-size: 0.6rem; color: #aaa; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; font-weight: bold;}
+
+        .card-bot { display: flex; justify-content: space-between; align-items: flex-end; }
+        /* 名字：醒目发光 */
+        .card-name { font-size: 1.6rem; font-weight: bold; letter-spacing: 3px; color: #fff; text-shadow: 0 0 10px #fff, 0 0 20px var(--secondary); }
         
-        .message h1 {
-            font-size: 2.5rem;
-            color: #ff6b6b;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        /* 落款徽章：科技感 */
+        .lion-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px; border-radius: 30px;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
         }
+        .lion-img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--primary); background: #fff; object-fit: cover; }
+        .lion-txt { font-size: 0.55rem; color: #ccc; text-align: right; line-height: 1.3; font-family: 'Roboto Mono'; }
+        .lion-txt strong { color: var(--primary); text-shadow: 0 0 5px var(--primary); }
 
-        .message p {
-            font-size: 1.2rem;
-            color: #666;
-        }
-
-        /* 蛋糕容器 */
-        .cake-container {
-            position: relative;
-            width: 250px;
-            height: 250px;
-            margin-bottom: 50px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        
-        .cake-container:active {
-            transform: scale(0.95);
-        }
-
-        /* 蛋糕Emoji动画 */
-        .cake-emoji {
-            font-size: 150px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            animation: bounce 2s infinite;
-        }
-
-        /* 按钮样式 */
-        .btn {
-            padding: 12px 30px;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-            cursor: pointer;
-            z-index: 10;
-            animation: pulse 2s infinite;
-        }
-
-        /* 动画关键帧 */
-        @keyframes bounce {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -60%) scale(1.1); }
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* 显示状态 */
-        .visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        /* --- 动画库 (不变) --- */
+        @keyframes popUpCard { 0% { opacity: 0; transform: scale(0.5) translateY(50px) rotateX(20deg); } 100% { opacity: 1; transform: scale(1) translateY(0) rotateX(0deg); } }
+        @keyframes glitchText { 0% { text-shadow: 4px 4px 0 var(--primary), -4px -4px 0 var(--secondary); transform: skew(0deg); } 20% { text-shadow: -4px 4px 0 var(--secondary), 4px -4px 0 var(--primary); transform: skew(-2deg); } 40% { text-shadow: 4px -4px 0 var(--primary), -4px 4px 0 var(--secondary); transform: skew(2deg); } 100% { text-shadow: 4px 4px 0 var(--primary), -4px -4px 0 var(--secondary); transform: skew(0deg); } }
+        @keyframes bounce { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.1) translateY(-10px); } }
+        @keyframes shimmer { 0% { transform: skewX(-20deg) translateX(-150%); } 100% { transform: skewX(-20deg) translateX(150%); } }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        .shaking { animation: shake 0.4s; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
+    <div class="bg-noise"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div id="floating-container"></div>
 
-    <div class="message" id="messageBox">
-        <h1>生日快乐！</h1>
-        <p>愿你所有愿望都实现 ✨</p>
+    <div class="stage" id="mainStage">
+        <div class="subtitle">HAPPY BIRTHDAY</div>
+        <h1>LISA<br>XOXO</h1>
+        <div class="cake-cage" id="clickArea">
+            <div class="cake-emoji">🎂</div>
+        </div>
+        <div class="power-bar-container">
+            <div class="power-fill" id="powerFill"></div>
+        </div>
+        <div class="tap-hint" id="tapHint">>>> TAP CAKE FAST <<<</div>
     </div>
 
-    <div class="cake-container" id="cakeBtn">
-        <div class="cake-emoji">🎂</div>
+    <div class="result-overlay" id="resultOverlay">
+        <div class="card-container-3d" id="card3d">
+            <div class="the-card">
+                <div class="card-top">
+                    <div class="card-title">LIFETIME<br>COFFEE PASS</div>
+                    <div class="wifi-icon">)))</div>
+                </div>
+                <div class="card-mid">
+                    <div class="mid-desc">CREDIT LIMIT</div>
+                    <div class="big-infinity">∞</div>
+                    <div class="mid-desc">UNLIMITED REFILLS</div>
+                </div>
+                <div class="card-bot">
+                    <div>
+                        <div style="font-size:0.6rem; color:#aaa">HOLDER</div>
+                        <div class="card-name">LISA</div>
+                    </div>
+                    <div class="lion-badge">
+                        <div class="lion-txt">Issued by<br><strong>Little Lion</strong></div>
+                        <img src="https://cdn-icons-png.flaticon.com/512/3408/3408608.png" class="lion-img">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <button class="btn" id="startBtn">点击领取祝福</button>
-
-    <audio id="bgm" loop>
-        <source src="https://music.163.com/song/media/outer/url?id=186016.mp3" type="audio/mpeg">
+    <audio id="bgm" loop preload="auto">
+        <source src="https://music.163.com/song/media/outer/url?id=22736170.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        const startBtn = document.getElementById('startBtn');
-        const messageBox = document.getElementById('messageBox');
-        const bgm = document.getElementById('bgm');
+        // 修改点：添加了射手座相关祝福
+        const MESSAGES = ["Happy Birthday!", "Queen Lisa 👑", "Sagittarius Queen ♐", "Coffee Lover ☕️", "Best Wishes!", "Slay All Day ✨", "From Janis ❤️", "Infinite Joy", "Super Star 🌟", "Cake Time! 🍰", "Little Lion 🦁", "Stay Cool 😎", "Make a Wish ✨", "Party Time! 🎉", "Enjoy Life 🌈", "♐♐♐"];
+        const floatContainer = document.getElementById('floating-container');
+        function spawnFloatText() { const el = document.createElement('div'); el.classList.add('float-text'); el.innerText = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]; const randomY = Math.floor(Math.random() * window.innerHeight); el.style.top = randomY + 'px'; if(Math.random() > 0.7) el.classList.add('highlight'); const duration = 8 + Math.random() * 6; el.style.animationDuration = duration + 's'; el.style.left = '-300px'; floatContainer.appendChild(el); setTimeout(() => { el.remove(); }, duration * 1000); }
+        setInterval(spawnFloatText, 500); for(let i=0; i<10; i++) spawnFloatText();
 
-        // 点击按钮触发
-        startBtn.addEventListener('click', function() {
-            // 1. 播放音乐 (浏览器限制必须用户交互才能播放)
-            bgm.play().catch(error => console.log("播放失败，需用户交互"));
-            
-            // 2. 隐藏按钮，显示文字
-            startBtn.style.display = 'none';
-            messageBox.classList.add('visible');
-
-            // 3. 发射第一波礼花
-            fireConfetti();
-
-            // 4. 持续发射随机礼花
-            let end = Date.now() + 15 * 1000; // 持续15秒
-            let interval = setInterval(function() {
-                if (Date.now() > end) {
-                    return clearInterval(interval);
-                }
-                confetti({
-                    startVelocity: 30,
-                    spread: 360,
-                    ticks: 60,
-                    zIndex: 0,
-                    particleCount: 50,
-                    origin: {
-                        x: Math.random(),
-                        // since they fall down, start a bit higher than random
-                        y: Math.random() - 0.2
-                    }
-                });
-            }, 200);
-        });
-
-        // 礼花函数
-        function fireConfetti() {
-            var count = 200;
-            var defaults = {
-                origin: { y: 0.7 }
-            };
-
-            function fire(particleRatio, opts) {
-                confetti(Object.assign({}, defaults, opts, {
-                    particleCount: Math.floor(count * particleRatio)
-                }));
-            }
-
-            fire(0.25, { spread: 26, startVelocity: 55, });
-            fire(0.2, { spread: 60, });
-            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-            fire(0.1, { spread: 120, startVelocity: 45, });
-        }
+        let power = 0; const maxPower = 100; const clickArea = document.getElementById('clickArea'); const powerFill = document.getElementById('powerFill'); const tapHint = document.getElementById('tapHint'); const stage = document.getElementById('mainStage'); const bgm = document.getElementById('bgm'); let isUnlocked = false;
+        clickArea.addEventListener('click', (e) => { if(isUnlocked) return; if (bgm.paused) { bgm.play().catch(err => console.log('Audio error:', err)); } power += 10; if(power > maxPower) power = maxPower; updatePower(); if(navigator.vibrate) navigator.vibrate(40); stage.classList.remove('shaking'); void stage.offsetWidth; stage.classList.add('shaking'); fireSmallConfetti(e.clientX / window.innerWidth, e.clientY / window.innerHeight); if(power >= maxPower) { unlockGift(); } });
+        setInterval(() => { if(isUnlocked) return; if(power > 0) { power -= 2; if(power < 0) power = 0; updatePower(); } }, 150);
+        
+        // 修改点：更新提示语逻辑
+        function updatePower() { powerFill.style.width = power + '%'; if(power > 80) { powerFill.style.background = '#ff0000'; tapHint.innerText = "ALMOST THERE!!!"; } else { powerFill.style.background = 'linear-gradient(90deg, var(--secondary), var(--primary))'; tapHint.innerText = ">>> TAP CAKE FAST <<<"; } }
+        
+        const resultOverlay = document.getElementById('resultOverlay');
+        function unlockGift() { isUnlocked = true; tapHint.innerText = "SYSTEM OVERLOAD!!!"; tapHint.style.color = "#ff0000"; fireMegaConfetti(); setTimeout(() => { stage.classList.add('minimized'); resultOverlay.classList.add('active'); }, 600); }
+        const cardContainer = document.getElementById('card3d');
+        function rotateCard(x, y) { const w = window.innerWidth; const h = window.innerHeight; const xAxis = (w / 2 - x) / 20; const yAxis = (h / 2 - y) / 20; cardContainer.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`; }
+        document.addEventListener('mousemove', (e) => { if(resultOverlay.classList.contains('active')) { rotateCard(e.clientX, e.clientY); } });
+        document.addEventListener('touchmove', (e) => { if(resultOverlay.classList.contains('active')) { const touch = e.touches[0]; rotateCard(touch.clientX, touch.clientY); } });
+        function fireSmallConfetti(x, y) { confetti({ particleCount: 10, spread: 30, origin: { x: x, y: y }, colors: ['#00ffff', '#ff00ff', '#ffee00'], disableForReducedMotion: true, zIndex: 300 }); }
+        function fireMegaConfetti() { var end = Date.now() + 2500; (function frame() { confetti({ particleCount: 5, angle: 60, spread: 80, origin: { x: 0 }, colors: ['#00ffff', '#ff00ff', '#ffee00'], zIndex: 300 }); confetti({ particleCount: 5, angle: 120, spread: 80, origin: { x: 1 }, colors: ['#00ffff', '#ff00ff', '#ffee00'], zIndex: 300 }); if (Date.now() < end) requestAnimationFrame(frame); }()); }
     </script>
 </body>
 </html>
