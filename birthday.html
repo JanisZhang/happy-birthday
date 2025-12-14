@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>生日快乐！</title>
+    <style>
+        /* 页面基础样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+        }
+
+        /* 祝福文字样式 */
+        .message {
+            text-align: center;
+            z-index: 10;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease;
+        }
+        
+        .message h1 {
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .message p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* 蛋糕容器 */
+        .cake-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin-bottom: 50px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .cake-container:active {
+            transform: scale(0.95);
+        }
+
+        /* 蛋糕Emoji动画 */
+        .cake-emoji {
+            font-size: 150px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            animation: bounce 2s infinite;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 12px 30px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            cursor: pointer;
+            z-index: 10;
+            animation: pulse 2s infinite;
+        }
+
+        /* 动画关键帧 */
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -60%) scale(1.1); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 显示状态 */
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <div class="message" id="messageBox">
+        <h1>生日快乐！</h1>
+        <p>愿你所有愿望都实现 ✨</p>
+    </div>
+
+    <div class="cake-container" id="cakeBtn">
+        <div class="cake-emoji">🎂</div>
+    </div>
+
+    <button class="btn" id="startBtn">点击领取祝福</button>
+
+    <audio id="bgm" loop>
+        <source src="https://music.163.com/song/media/outer/url?id=186016.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const messageBox = document.getElementById('messageBox');
+        const bgm = document.getElementById('bgm');
+
+        // 点击按钮触发
+        startBtn.addEventListener('click', function() {
+            // 1. 播放音乐 (浏览器限制必须用户交互才能播放)
+            bgm.play().catch(error => console.log("播放失败，需用户交互"));
+            
+            // 2. 隐藏按钮，显示文字
+            startBtn.style.display = 'none';
+            messageBox.classList.add('visible');
+
+            // 3. 发射第一波礼花
+            fireConfetti();
+
+            // 4. 持续发射随机礼花
+            let end = Date.now() + 15 * 1000; // 持续15秒
+            let interval = setInterval(function() {
+                if (Date.now() > end) {
+                    return clearInterval(interval);
+                }
+                confetti({
+                    startVelocity: 30,
+                    spread: 360,
+                    ticks: 60,
+                    zIndex: 0,
+                    particleCount: 50,
+                    origin: {
+                        x: Math.random(),
+                        // since they fall down, start a bit higher than random
+                        y: Math.random() - 0.2
+                    }
+                });
+            }, 200);
+        });
+
+        // 礼花函数
+        function fireConfetti() {
+            var count = 200;
+            var defaults = {
+                origin: { y: 0.7 }
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55, });
+            fire(0.2, { spread: 60, });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45, });
+        }
+    </script>
+</body>
+</html>
