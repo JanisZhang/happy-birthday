@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LISA'S BIRTHDAY ✨</title>
+    <title>LISA'S PARTY ✨</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
         /* =========================================
-           1. 基础设定
+           CSS 样式保持完美炫酷 (跟上一版一致)
            ========================================= */
         :root { --primary: #ff00ff; --secondary: #00ffff; --yellow: #ffee00; --dark: #050505; }
         * { box-sizing: border-box; }
@@ -17,18 +17,12 @@
         .orb-1 { width: 350px; height: 350px; background: var(--primary); top: -10%; left: -10%; }
         .orb-2 { width: 450px; height: 450px; background: var(--secondary); bottom: -10%; right: -10%; animation-delay: -4s; }
         @keyframes orbFloat { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(40px, 60px); } }
-
-        /* =========================================
-           2. 漂浮弹幕
-           ========================================= */
+        
         #floating-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; overflow: hidden; }
         .float-text { position: absolute; color: rgba(255,255,255,0.4); font-family: 'Bangers', cursive; font-size: 1.8rem; white-space: nowrap; text-shadow: 2px 2px 0 #000; transition: transform 0.2s; animation: floatAround 10s linear infinite; }
         .float-text.highlight { color: var(--yellow); opacity: 0.9; font-size: 2.2rem; text-shadow: 3px 3px 0 #ff0055; z-index: 201; }
         @keyframes floatAround { 0% { transform: translateX(110vw) rotate(0deg); } 100% { transform: translateX(-100vw) rotate(15deg); } }
 
-        /* =========================================
-           3. 主舞台
-           ========================================= */
         .stage { z-index: 10; text-align: center; position: relative; transform-style: preserve-3d; transition: opacity 0.5s, transform 0.5s; }
         .stage.minimized { transform: scale(0.8); opacity: 0; pointer-events: none; }
         h1 { font-family: 'Press Start 2P', cursive; font-size: 2.5rem; line-height: 1.4; margin: 0; color: #fff; text-transform: uppercase; text-shadow: 4px 4px 0 var(--primary), -4px -4px 0 var(--secondary); animation: glitchText 3s infinite alternate; }
@@ -40,9 +34,6 @@
         .power-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary)); transition: width 0.1s linear; }
         .tap-hint { margin-top: 10px; animation: blink 0.5s infinite; color: var(--secondary); font-family: 'Press Start 2P'; font-size: 0.65rem; line-height: 1.5; letter-spacing: 1px; text-shadow: 0 0 5px var(--secondary); }
 
-        /* =========================================
-           4. 结果页与卡片
-           ========================================= */
         .result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.6s ease-out; perspective: 1200px; }
         .result-overlay.active { opacity: 1; pointer-events: auto; }
         .card-container-3d { width: 320px; height: 210px; position: relative; transform-style: preserve-3d; opacity: 0; transform: scale(0.5) translateY(50px); }
@@ -71,20 +62,6 @@
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shaking { animation: shake 0.4s; }
-
-        /* 新增：静音按钮样式 */
-        .sound-btn {
-            position: fixed; top: 20px; right: 20px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            width: 40px; height: 40px;
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-            backdrop-filter: blur(5px);
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -94,11 +71,11 @@
     <div class="orb orb-2"></div>
     <div id="floating-container"></div>
 
-    <div class="sound-btn" id="soundToggle">🔇</div>
-
     <div class="stage" id="mainStage">
         <div class="subtitle">HAPPY BIRTHDAY</div>
         <h1>LISA<br>XOXO</h1>
+        <div style="font-size: 0.5rem; color: #555; margin-top: -5px; margin-bottom: 20px; font-family: sans-serif;">(Turn on sound 🔊)</div>
+
         <div class="cake-cage" id="clickArea">
             <div class="cake-emoji">🎂</div>
         </div>
@@ -135,7 +112,7 @@
     </div>
 
     <audio id="bgm" loop preload="auto">
-        <source src="https://raw.githubusercontent.com/himalayasingh/music-player-1/master/music/2.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
     </audio>
 
     <script>
@@ -145,50 +122,44 @@
         setInterval(spawnFloatText, 500); for(let i=0; i<10; i++) spawnFloatText();
 
         let power = 0; const maxPower = 100; const clickArea = document.getElementById('clickArea'); const powerFill = document.getElementById('powerFill'); const tapHint = document.getElementById('tapHint'); const stage = document.getElementById('mainStage'); const bgm = document.getElementById('bgm'); let isUnlocked = false;
-
-        // --- 声音控制逻辑 ---
-        const soundBtn = document.getElementById('soundToggle');
         
-        function toggleSound() {
+        // --- 核心修复：微信/iOS 移动端音频自动播放补丁 ---
+        
+        // 尝试播放函数
+        function tryPlayAudio() {
             if (bgm.paused) {
+                // 必须先 load，防止移动端因为网络原因处于挂起状态
+                bgm.load(); 
                 bgm.play().then(() => {
-                    soundBtn.innerText = "🔊";
-                    // 第一次成功播放后，移除全局强制唤醒，避免冲突
-                    document.body.removeEventListener('touchstart', autoPlayMusic);
-                    document.body.removeEventListener('click', autoPlayMusic);
+                    // 播放成功，移除全局监听，避免浪费性能
+                    document.removeEventListener('touchstart', tryPlayAudio);
+                    document.removeEventListener('click', tryPlayAudio);
                 }).catch(e => {
-                    console.log("Play failed", e);
-                    soundBtn.innerText = "🔇";
+                    console.log('Audio Autoplay Blocked (Common on Mobile), waiting for interaction.');
                 });
-            } else {
-                bgm.pause();
-                soundBtn.innerText = "🔇";
             }
         }
 
-        soundBtn.addEventListener('click', toggleSound);
-
-        // 尝试自动播放 (微信/iOS)
-        function autoPlayMusic() {
-            if (bgm.paused) {
-                bgm.play().then(() => {
-                    soundBtn.innerText = "🔊";
-                }).catch(e => {});
-            }
-        }
-        
-        document.body.addEventListener('touchstart', autoPlayMusic);
-        document.body.addEventListener('click', autoPlayMusic);
-
-        // 兼容微信内置浏览器
+        // 1. 微信专用：通过监听 WeixinJSBridgeReady 并调用 getNetworkType 接口来“骗”过浏览器
+        // 这是微信内部唤醒音频最有效的方法
         document.addEventListener('WeixinJSBridgeReady', function () {
-            bgm.play().then(() => soundBtn.innerText = "🔊");
+            tryPlayAudio();
+            WeixinJSBridge.invoke('getNetworkType', {}, function (e) {
+                tryPlayAudio();
+            });
         }, false);
-        // ------------------
+
+        // 2. 兜底方案：监听用户的第一次触摸
+        document.body.addEventListener('touchstart', tryPlayAudio, { once: true });
+        document.body.addEventListener('click', tryPlayAudio, { once: true });
+        // ----------------------------------------------------
 
         clickArea.addEventListener('click', (e) => {
             if(isUnlocked) return;
-            autoPlayMusic(); // 确保点击蛋糕也能触发
+            
+            // 再次尝试播放，确保万无一失
+            if (bgm.paused) bgm.play().catch(e => {});
+
             power += 10; if(power > maxPower) power = maxPower; updatePower(); if(navigator.vibrate) navigator.vibrate(40); stage.classList.remove('shaking'); void stage.offsetWidth; stage.classList.add('shaking'); fireSmallConfetti(e.clientX / window.innerWidth, e.clientY / window.innerHeight); if(power >= maxPower) { unlockGift(); } 
         });
         
