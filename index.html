@@ -174,7 +174,7 @@
                         <div class="card-name">LISA</div>
                     </div>
                     <div class="lion-badge">
-                        <div class="lion-txt">Issued by<br><strong>Little Lion</strong></div>
+                        <div class="lion-txt">Issued by<br><strong>嚣张</strong></div>
                         <img src="https://cdn-icons-png.flaticon.com/512/3408/3408608.png" class="lion-img">
                     </div>
                 </div>
@@ -206,7 +206,7 @@
 
     <script>
         // ... (文字漂浮和音乐代码保持不变) ...
-        const MESSAGES = ["Happy Birthday!", "Queen Lisa 👑", "Sagittarius Queen ♐", "Coffee Lover ☕️", "Best Wishes!", "Slay All Day ✨", "From Janis ❤️", "Infinite Joy", "Super Star 🌟", "Cake Time! 🍰", "Little Lion 🦁", "Stay Cool 😎", "Make a Wish ✨", "Party Time! 🎉", "Enjoy Life 🌈", "♐♐♐"];
+        const MESSAGES = ["Happy Birthday!", "Happy Birthday!", "Queen Lisa 👑", "Queen Lisa 👑", "Sagittarius Queen ♐", "Best Wishes!", "Slay All Day ✨", "Slay All Day ✨", "Love From Janis ❤️", "Love From Janis ❤️", "Super Star 🌟", "Cake Time! 🍰",  "Stay Cool 😎", "Make a Wish ✨", "Enjoy Life 🌈", "♐♐♐", "Beauty & Brains 🧠", "生日快乐 🎂",  "心想事成 ✨",  "吃不胖 🍟",];
         const floatContainer = document.getElementById('floating-container');
         function spawnFloatText() { const el = document.createElement('div'); el.classList.add('float-text'); el.innerText = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]; const randomY = Math.floor(Math.random() * window.innerHeight); el.style.top = randomY + 'px'; if(Math.random() > 0.7) el.classList.add('highlight'); const duration = 8 + Math.random() * 6; el.style.animationDuration = duration + 's'; el.style.left = '-300px'; floatContainer.appendChild(el); setTimeout(() => { el.remove(); }, duration * 1000); }
         setInterval(spawnFloatText, 500); for(let i=0; i<10; i++) spawnFloatText();
@@ -216,7 +216,7 @@
         // 音乐控制
         const musicBtn = document.getElementById('musicControl');
         const musicText = document.getElementById('musicText');
-        function toggleMusic() { if (bgm.paused) { bgm.volume = 0.5; bgm.play(); } else { bgm.pause(); } }
+        function toggleMusic() { if (bgm.paused) { bgm.volume = 0.8; bgm.play(); } else { bgm.pause(); } }
         bgm.addEventListener('play', () => { musicBtn.classList.add('playing'); musicText.innerText = "Music On - For Lisa!"; });
         bgm.addEventListener('pause', () => { musicBtn.classList.remove('playing'); musicText.innerText = "Turn on sound & enjoy"; });
         function tryPlayAudio() { if (bgm.paused) { bgm.load(); bgm.play().then(() => { document.removeEventListener('touchstart', tryPlayAudio); document.removeEventListener('click', tryPlayAudio); }).catch(e => { }); } }
